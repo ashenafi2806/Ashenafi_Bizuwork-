@@ -46,3 +46,5 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+feature_workflow_guide.md
+flutter_clean_architecture_readme.md

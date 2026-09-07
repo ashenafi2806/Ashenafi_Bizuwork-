@@ -1,4 +1,7 @@
 class Constants {
+  static const String loginBaseUrl =
+      'https://api.mockfly.dev/mocks/5064738f-5131-4b0a-8909-ca1634e26c27';
+  static const String loginPath = '/login';
   // Base URL for the OpenWeatherMap API
   static const String baseUrl = 'https://api.openweathermap.org/data/2.5/';
 

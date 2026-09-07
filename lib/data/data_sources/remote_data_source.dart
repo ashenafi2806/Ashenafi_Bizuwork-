@@ -7,6 +7,17 @@ class RemoteDataSource {
 
   RemoteDataSource({required this.dioClient});
 
+  Future<Map<String, dynamic>> login(String pin) async {
+    try {
+      final response = await dioClient.post('/login', data: {'pin': pin});
+      return Map<String, dynamic>.from(response.data as Map);
+    } on DioException catch (e) {
+      throw NetworkException.fromDioError(e);
+    } catch (e) {
+      throw Exception('Unable to sign in right now');
+    }
+  }
+
   // Example GET request
   Future<dynamic> fetchData(String id) async {
     try {
