@@ -1,43 +1,137 @@
-# M-PESA Login UI
+# Safaricom M-PESA Flutter Task
 
-Two-screen Flutter implementation of the Safaricom M-PESA sign-in flow: a welcome page and a PIN authentication page.
+A Flutter implementation of a Safaricom M-PESA user flow with PIN authentication and a balance dashboard.
+
+## Implemented Flow
+
+The app contains three user-facing screens:
+
+1. **Welcome screen**
+   - M-PESA branding
+   - Red `Sign in` action
+   - M-PESA status text
+
+2. **PIN sign-in screen**
+   - English/Amharic language selector
+   - Welcome profile header
+   - Four-digit PIN keypad
+   - PIN validation
+   - Loading state while signing in
+   - API error feedback
+   - Continue button and support links
+
+3. **Home dashboard**
+   - Morning greeting and notifications icon
+   - Main, Reward, and Errif balances
+   - Balance visibility toggle
+   - Add Money button
+   - Six-service grid:
+     - Merchant Payment
+     - Bill Payment
+     - Credit & Saving
+     - Transfer Money
+     - Airtime / Package
+     - More Services
+   - Three demonstration transaction cards
 
 ## Architecture
 
-The app follows a lightweight Clean Architecture structure:
+The project uses a lightweight Clean Architecture structure:
 
-- `domain`: `UserEntity`, `AuthRepository`, and `LoginUseCase` contain business contracts.
-- `data`: `RemoteDataSource` performs the Dio request and `AuthRepositoryImpl` maps the API response.
-- `presentation`: `AuthCubit` owns validation/loading/success/failure state, while the pages render and react to it.
-- `core`: Dio configuration, exception mapping, constants, and GetIt dependency injection.
+```text
+lib/
+├── core/
+│   ├── constants/
+│   ├── di/
+│   └── network/dio/
+├── data/
+│   ├── data_sources/
+│   └── repositories/
+├── domain/
+│   ├── entities/
+│   ├── repositories/
+│   └── usecases/
+├── presentation/
+│   ├── bloc/
+│   ├── pages/
+│   └── widgets/
+└── main.dart
+```
 
-This keeps API details out of the UI and makes the use case and repository easy to replace with test doubles.
+- **Domain** contains `UserEntity`, the `AuthRepository` contract, and `LoginUseCase`.
+- **Data** contains the Dio remote data source and repository implementation that maps API responses into domain entities.
+- **Presentation** contains the pages and `AuthCubit`, which manages validation, loading, success, and failure states.
+- **Core** contains networking, exception handling, constants, and GetIt dependency injection.
+
+This separation keeps API details out of the UI and allows repositories or use cases to be replaced with test doubles.
+
+## API
+
+The sign-in request uses the supplied mock endpoint:
+
+```text
+POST https://api.mockfly.dev/mocks/5064738f-5131-4b0a-8909-ca1634e26c27/login
+```
+
+Request body:
+
+```json
+{
+  "pin": "1111"
+}
+```
+
+The demo API documentation specifies `1111` as the successful PIN. The app sends the request only after exactly four digits have been entered.
 
 ## Packages
 
-- `flutter_bloc`: predictable authentication state management.
-- `dio`: HTTP client for the supplied login endpoint.
-- `get_it`: dependency registration at the composition root.
-- `iconsax`: consistent icons for language, PIN, help, and navigation controls.
-- `equatable`: existing network exception value semantics.
+- `dio`: HTTP client and API communication.
+- `flutter_bloc`: Cubit-based authentication state management.
+- `get_it`: dependency injection.
+- `iconsax`: icons used throughout the interface.
+- `equatable`: value equality for network exceptions.
+- `flutter_dotenv`: available for environment configuration if API settings move to environment files.
 
-## Technical Decisions
+The UI uses Flutter Material components with sharp-corner controls to match the requested M-PESA design.
 
-- The supplied mock API is called only after a complete four-digit PIN is entered.
-- API and network failures are surfaced as a SnackBar, while the Continue button shows a progress indicator during the request.
-- The keypad is implemented as a reusable grid and uses fixed-size, sharp-corner PIN cells to match the requested design.
-- The logo and user avatar are rendered locally so the two-screen flow does not depend on unavailable image assets.
+## Important Technical Decisions
+
+- A `Cubit` is used instead of event-based Bloc because the authentication flow has one focused action: submit a PIN.
+- The API response is mapped directly into `UserEntity`; generated JSON models are not required for this small mock response.
+- PIN and balance values are masked by default where appropriate.
+- Add Money, notifications, service tiles, and support links are currently UI actions only because no APIs were supplied for those features.
+- Demo transactions are static presentation data as requested.
+
+## Testing
+
+The widget test covers:
+
+- Welcome-to-PIN navigation.
+- PIN length validation.
+- Home-page service labels.
+- Transaction list rendering.
+- Balance masking and visibility toggling.
+
+Run tests with:
+
+```bash
+flutter test
+```
+
+## Running the App
+
+Prerequisites:
+
+- Flutter SDK compatible with Dart `3.12.0` or newer.
+- Android emulator, iOS simulator, or a connected physical device.
+
+From the project root:
+
+```bash
+flutter pub get
+flutter run
+```
 
 ## AI Tools
 
-AI assistance was used to inspect the provided workflow and architecture guides, shape the clean-architecture slices, implement the UI and API integration, and update the widget test and documentation. All generated code was kept within the existing project structure and reviewed for the requested behavior.
-
-## Run
-
-1. Install Flutter 3.12 or newer and ensure `flutter` is available on PATH.
-2. From the project root, run `flutter pub get`.
-3. Start an emulator or connect a device.
-4. Run `flutter run`.
-5. Execute `flutter test` to run the widget test.
-
-The mock API accepts PIN `1111` according to the supplied API brief.
+AI assistance was used to inspect the supplied workflow and architecture guides, implement the Clean Architecture layers, build the requested UI screens, integrate the mock API, update widget tests, and review the project documentation. The implementation was checked against the project requirements and local Dart diagnostics.
